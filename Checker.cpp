@@ -16,7 +16,7 @@ bool isValueInRange(float minimum, float maximum, float value, const string& par
   return true;
 }
 
-bool isValueGreaterThan(float maximum, float value, const string& parameter)
+bool isValuLesserThan(float maximum, float value, const string& parameter)
 {
   if (value > maximum)
   {
@@ -33,12 +33,38 @@ bool batteryIsOk(float temperature, float soc, float chargeRate) {
 
   temperatureStatus = isValueInRange(0, 45, temperature, "Temperature");
   socStatus = isValueInRange(20, 80, soc, "State of Charge");
-  chargeRateStatus = isValueGreaterThan(0.8, chargeRate, "Charge Rate");
+  chargeRateStatus = isValuLesserThan(0.8, chargeRate, "Charge Rate");
 
   return temperatureStatus && socStatus && chargeRateStatus;
 }
 
+#define TEMP_IN_RANGE_LOW 25.0f
+#define TEMP_IN_RANGE_HIGH 45.0f
+#define TEMP_OUT_OF_RANGE_LOW -10.0f
+#define TEMP_OUT_OF_RANGE_HIGH 50.0f
+
+#define SOC_IN_RANGE_LOW 20.0f
+#define SOC_IN_RANGE_HIGH 80.0f
+#define SOC_OUT_OF_RANGE_LOW 15.0f
+#define SOC_OUT_OF_RANGE_HIGH 85.0f
+
+#define CHARGE_RATE_IN_RANGE 0.5f
+#define CHARGE_RATE_OUT_OF_RANGE 0.9f
+
+void testBatteryIsOk() {
+  assert(batteryIsOk(TEMP_IN_RANGE_LOW, SOC_IN_RANGE_LOW, CHARGE_RATE_IN_RANGE) == true);
+  assert(batteryIsOk(TEMP_OUT_OF_RANGE_HIGH, SOC_IN_RANGE_LOW, CHARGE_RATE_IN_RANGE) == false);
+  assert(batteryIsOk(TEMP_OUT_OF_RANGE_LOW, SOC_IN_RANGE_LOW, CHARGE_RATE_IN_RANGE) == false);
+  assert(batteryIsOk(TEMP_IN_RANGE_LOW, SOC_OUT_OF_RANGE_HIGH, CHARGE_RATE_IN_RANGE) == false);
+  assert(batteryIsOk(TEMP_IN_RANGE_LOW, SOC_OUT_OF_RANGE_LOW, CHARGE_RATE_IN_RANGE) == false);  
+  assert(batteryIsOk(TEMP_IN_RANGE_LOW, SOC_IN_RANGE_LOW, CHARGE_RATE_OUT_OF_RANGE) == false);  
+  assert(batteryIsOk(TEMP_IN_RANGE_LOW, SOC_IN_RANGE_LOW, CHARGE_RATE_IN_RANGE) == true);
+  assert(batteryIsOk(TEMP_IN_RANGE_HIGH, SOC_IN_RANGE_HIGH, CHARGE_RATE_IN_RANGE) == true);  
+  assert(batteryIsOk(TEMP_IN_RANGE_LOW, SOC_IN_RANGE_LOW, CHARGE_RATE_OUT_OF_RANGE) == false);  
+  assert(batteryIsOk(TEMP_OUT_OF_RANGE_LOW, SOC_OUT_OF_RANGE_HIGH, CHARGE_RATE_OUT_OF_RANGE) == false);
+}
 int main() {
-  assert(batteryIsOk(25, 70, 0.7) == true);
-  assert(batteryIsOk(50, 85, 0) == false);
+  testBatteryIsOk();
+  
+  return 0;
 }
